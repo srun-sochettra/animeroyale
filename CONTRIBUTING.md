@@ -1,81 +1,54 @@
 # Contributing to AnimeRoyale
 
-Thank you for your interest in contributing to AnimeRoyale! Community contributions help make this project a more entertaining and useful tool for weeb analytics.
+Keep changes focused on playful media-profile analysis with understandable statistics and reliable interactions. A small, well-explained fix is more useful than unrelated scaffolding.
 
-Please review these guidelines to make the contribution process smooth and effective.
+## Before starting
 
----
+Read the [README](README.md), [architecture](docs/architecture.md), and [maintenance notes](docs/maintenance.md). Check existing issues and pull requests for overlapping work. Explain the user problem before proposing a large feature or dependency.
 
-## 📋 Code of Conduct
+Follow the [code of conduct](CODE_OF_CONDUCT.md). Report vulnerabilities through the [security policy](SECURITY.md), not public bug reports.
 
-By participating in this project, you agree to abide by our [Code of Conduct](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/CODE_OF_CONDUCT.md). Please report any unacceptable behavior to [maintainers@example.com](mailto:maintainers@example.com).
+## Development
 
----
+Install with `npm install`. Use `npm run dev` for frontend work. For commentary, copy [.env.example](.env.example) to `.env.local`, supply your own Groq key, and run `npm run vercel-dev`.
 
-## 🐛 How to Report Bugs & Suggest Features
+The supplied snapshot has no lockfile and uses several `latest` ranges. Record your Node.js and installed dependency versions when reporting installation problems. Do not silently fix the separate leaderboard or dependency issues in an unrelated documentation change.
 
-*   **Check Existing Issues:** Before opening a new issue, search the issue tracker to see if the bug or feature has already been reported.
-*   **Bug Reports:** When opening an issue, provide clear reproduction steps, screenshots if applicable, and details about your environment (browser, OS).
-*   **Feature Suggestions:** Describe the feature's goal, how it fits into the "Egg Court" rating ecosystem, and any suggestions for the user interface.
+## Change guidelines
 
----
+- Reuse existing components and adapters before adding new layers.
+- Keep provider-specific data handling in `src/lib/animeApi.js`.
+- Keep deterministic winner selection separate from generated commentary.
+- Preserve loading, error, fallback, and history behaviour unless explicitly changing it.
+- Never add credentials, invented metrics, fake badges, or unsupported verification claims.
+- Use relative links for repository files, not machine-specific links.
+- Check keyboard and touch operation, narrow layouts, and reduced-motion preferences for visual changes.
+- Explain scoring changes and their effect on results. Entertainment scores are not objective assessments.
 
-## 🛠️ Local Development Setup
+## Verification
 
-To set up a local workspace for developing AnimeRoyale:
+Run the existing checks where possible:
 
-1.  **Fork & Clone:** Fork the repository on GitHub and clone it locally.
-2.  **Dependencies:** Install dependencies via Node Package Manager:
-    ```bash
-    npm install
-    ```
-3.  **Environment Setup:** Create a `.env.local` file by copying `.env.example`:
-    ```bash
-    cp .env.example .env.local
-    ```
-    Populate `GROQ_API_KEY` with a valid API key from Groq Console.
-4.  **Run Development Servers:**
-    *   To edit frontend layout only, use Vite's dev server:
-        ```bash
-        npm run dev
-        ```
-    *   To work with AI roasts or battles, use Vercel CLI to spin up serverless API functions locally:
-        ```bash
-        vercel dev
-        ```
-
----
-
-## 🎨 Coding & Style Guidelines
-
-### 1. JavaScript & React
-*   Write modular components. Keep components inside [src/features/animeRoyale/components/](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/src/features/animeRoyale/components) specific and reusable.
-*   Utilize hooks for state management and functional updates.
-*   Follow clean coding practices. Do not leave debug statements, console logs, or commented-out blocks in production code.
-
-### 2. Styling (Tailwind CSS)
-*   Avoid arbitrary inline CSS values in components where utility classes exist.
-*   Keep colors consistent with the established warm weeb-brown theme (e.g., `text-brown-700`, `fill-[#FCE9B8]`).
-*   Ensure all interface designs feel premium, highly interactive, and responsive.
-
-### 3. Verification & Linting
-Ensure your code is free of linting errors before pushing:
-```bash
+```sh
 npm run lint
+npm run build
 ```
-Fix all ESLint warnings and errors prior to submitting a Pull Request.
 
----
+No automated test script is defined in the supplied manifest. For behaviour changes, add the smallest appropriate regression check and report exactly what ran. A documentation edit alone does not justify a new test framework.
 
-## 🚀 Pull Request Workflow
+For relevant changes, manually check:
 
-1.  **Branch Naming:** Create a branch off of `main`. Use naming prefixes:
-    *   `feature/new-epic-stuff` for features.
-    *   `bugfix/broken-egg-tier` for bug fixes.
-    *   `docs/update-guide` for documentation.
-2.  **Make Atomic Commits:** Keep commits small, descriptive, and focused.
-3.  **Submit PR:**
-    *   Provide a clear summary of what changed.
-    *   Add screenshots or a short GIF if there are UI modifications.
-    *   Reference any related issue numbers (e.g., `Closes #12`).
-4.  **Review Process:** The maintainers will review your code. Address any requested changes promptly.
+1. Solo, battle, and matchmaker modes with valid public profiles.
+2. Both providers, including the unavailable MAL novel-only option.
+3. Empty usernames, unknown profiles, failed lookups, and slow responses.
+4. Commentary success and fallback when the API is unavailable.
+5. Local winner and generated commentary consistency.
+6. History reopening, clearing, and unavailable browser storage.
+7. Clipboard success/failure and PNG export.
+8. Keyboard operation, visible focus, and narrow-screen layout.
+
+Only report scenarios actually exercised. Use your own test data and redact private information.
+
+## Pull requests
+
+Describe the problem, focused change, checks run, and remaining gaps. Include before/after screenshots for visual changes and explain data, API, dependency, or deployment implications. Keep unrelated cleanup separate.

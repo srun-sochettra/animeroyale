@@ -44,3 +44,6 @@ coverage/
 
 .vercel
 .env*
+
+# Keep the credential-free environment template trackable.
+!.env.example

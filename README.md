@@ -1,107 +1,135 @@
-# 🥚 AnimeRoyale
+# AnimeRoyale
 
-AnimeRoyale is a web application that scans and rates your anime, manga, and light novel tracking statistics from **AniList** or **MyAnimeList** through the eyes of the "Egg Court". It calculates a custom **Battle Score**, assigns an **Egg Tier**, and uses advanced AI to deliver brutally honest roasts, hype commentary, or full-blown 1v1 battles between profiles.
+**Your media stats. An egg-court verdict.**
 
----
+AnimeRoyale turns public AniList and MyAnimeList profiles into playful inspections, head-to-head battles, and compatibility commentary. Built with React and Vercel Functions, it combines platform-specific data adapters, local scoring rules, and optional AI commentary through Groq.
 
-## 🚀 Key Features
+This is an entertainment project, not an objective measure of taste, expertise, or real-world compatibility.
 
-*   **Solo Profile Inspection:** Get a brutally honest, yolk-filled legal verdict on your media tracking habits. It details your stats, gives you an Egg Score (0–100), and assigns a custom rank (e.g., *Hard-Boiled Manga Goblin* or *Omni-Weeb Egg Ascended*).
-*   **1v1 Battle Mode 🥊:** Pit two usernames against each other in the AnimeRoyale arena. An AI-powered aggressive fighting game announcer declares a winner or an egg-stained tie, roasting the loser and hyping the winner with specific stats-based feedback.
-*   **Cross-Media Support:** Choose from four media scopes:
-    *   **Anime:** Track episodes watched and total watch-time damage.
-    *   **Manga:** Analyze chapters read and volumes turned.
-    *   **Novels:** Deep-dive into light novel chapters read.
-    *   **Combined:** Aggregate all your stats across all media types with smart weighted metrics.
-*   **Double Platform Integration:** Fully supports profiles from **AniList** (via direct GraphQL endpoints) and **MyAnimeList** (via Jikan API v4).
-*   **AI-Powered Roasts & Hype:** Leverages Groq's `llama-3.3-70b-versatile` model to write highly engaging, context-aware commentary tailored to user stats.
+## Features
 
----
+- **Solo inspection:** profile statistics, a custom battle score, egg tier, and commentary.
+- **Profile battles:** compare two users on the selected platform. Local scoring selects the displayed winner; AI supplies commentary.
+- **Matchmaker:** playful comparisons of two profiles' tracking statistics.
+- **Media scopes:** anime, manga, novels, or combined activity. Novel-only mode is available for AniList, not MyAnimeList.
+- **Commentary styles:** default, tsundere, elitist critic, and shonen protagonist.
+- **Sharing:** copy commentary or export a result card as a PNG.
+- **Recent results:** reopen or clear up to ten results saved in browser local storage.
+- **Fallback commentary:** built-in text when AI requests fail. Profile retrieval still needs network access.
 
-## 🛠️ Tech Stack
+## How it works
 
-*   **Frontend:** [React](https://react.dev/) + [Vite](https://vite.dev/)
-*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-*   **Serverless/API:** [Vercel Serverless Functions](https://vercel.com/docs/functions)
-*   **AI Integration:** [Groq API](https://groq.com/) (running Llama-3.3-70b)
-*   **Typography:** [Fraunces](https://fonts.google.com/specimen/Fraunces) (for display headers) & [Inter](https://fonts.google.com/specimen/Inter) (for content)
+1. Fetch public profile statistics directly from AniList GraphQL or Jikan REST.
+2. Normalise provider responses into a shared profile shape.
+3. Calculate battle scores and egg tiers in the browser.
+4. Request optional commentary through `/api/roast`, which calls Groq server-side.
+5. Display the result and save it in browser history.
 
----
+The **battle score** is calculated locally. The **egg tier** uses activity thresholds and special-case rules. The **Egg Score** in solo commentary is model-generated. These are separate values, not interchangeable rankings.
 
-## 📁 Code Structure
+Provider rating scales are not normalised by the current adapters. AniList novel statistics come from its manga-format breakdown, so combined scoring can overlap those aggregates. Treat the output as a game rather than a fair cross-platform benchmark. See [architecture and scoring](docs/architecture.md).
 
-*   `api/`
-    *   [roast.js](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/api/roast.js): The Vercel serverless function handling the AI prompts, context construction, and commentary generation.
-*   `src/`
-    *   `components/`: Reusable global UI elements like the navbar, logo animations, and icons.
-    *   `features/animeRoyale/`: Core application feature code.
-        *   `components/`: Sub-components for forms, statistics displays, loader animations, and result views.
-        *   [AnimeRoyalePage.jsx](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/src/features/animeRoyale/AnimeRoyalePage.jsx): The main controller component.
-    *   `lib/`
-        *   [animeApi.js](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/src/lib/animeApi.js): Normalizes raw API responses from AniList & MyAnimeList and calculates ratings.
-        *   [battle.js](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/src/lib/battle.js): Logic for determining winners, fallback offline roasts, and calling the AI serverless endpoint.
-        *   [eggTiers.js](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/src/lib/eggTiers.js): Configuration for tier boundaries and weeb rating labels.
+## Stack
 
----
+| Layer | Implementation |
+| --- | --- |
+| Interface | React, JavaScript, Vite |
+| Styling | Tailwind CSS, Fraunces, Inter |
+| Profile data | AniList GraphQL, Jikan REST |
+| Commentary | Groq chat completions through Vercel Functions |
+| Image export | `html-to-image` |
+| Recent history | Browser `localStorage` |
 
-## 💻 Local Setup & Development
+The commentary handler selects `llama-3.3-70b-versatile` in source. Provider availability has not been verified by this documentation refresh.
 
-Follow these steps to run AnimeRoyale locally on your machine:
+## Local development
 
-### 1. Prerequisites
+### Prerequisites
 
-Ensure you have [Node.js](https://nodejs.org/) (v18+) and `npm` installed.
+Use Node.js and npm compatible with the dependencies you install. The supplied snapshot uses several `latest` ranges, has no `engines` declaration, and contains no lockfile. It therefore does not establish a reproducible dependency set or a verified minimum Node.js version.
 
-### 2. Clone and Install Dependencies
+From the repository root:
 
-```bash
-cd animeroyale
+```sh
 npm install
 ```
 
-### 3. Environment Variables Setup
+### Frontend only
 
-AnimeRoyale requires a Groq API Key to power the AI commentary.
-1. Copy the `.env.example` file to `.env` or `.env.local`:
-   ```bash
-   cp .env.example .env.local
-   ```
-2. Open `.env.local` and replace `gsk_your_key_here` with your actual Groq API key:
-   ```env
-   GROQ_API_KEY=gsk_your_actual_key_goes_here
-   ```
-
-### 4. Running the Development Servers
-
-For the local React frontend *only*:
-```bash
+```sh
 npm run dev
 ```
-By default, the Vite dev server runs on `http://localhost:5173`. 
 
-> [!NOTE]
-> Since the project uses a Vercel Serverless Function under `api/roast.js` to communicate with Groq, running only the Vite development server will cause API requests to fail (as it doesn't run the backend functions).
+Open the address printed by Vite. This does not run the Vercel API functions. Profile lookup and local scoring can still work; unavailable commentary requests use built-in fallback text.
 
-To run **both** the frontend and serverless API endpoints locally:
-1. Install the Vercel CLI globally (if you haven't already):
-   ```bash
-   npm install -g vercel
-   ```
-2. Start the development server using the Vercel CLI wrapper:
-   ```bash
-   npm run vercel-dev
-   ```
-This will run the serverless backend function environment alongside Vite on `http://localhost:3000`.
+### Frontend and commentary API
 
-### 5. Production Build
+Copy [.env.example](.env.example) to `.env.local` and set your own `GROQ_API_KEY`.
 
-To build the static application assets:
-```bash
-npm run build
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env.local
 ```
 
----
+POSIX shell:
 
-## 📝 License
+```sh
+cp .env.example .env.local
+```
 
-This project is licensed under the MIT License. See the [LICENSE](file:///d:/Users/ROG/Documents/School_Projects/Vibe/animeroyale/LICENSE) file for more information.
+Run the existing script, which uses the project's Vercel CLI dependency:
+
+```sh
+npm run vercel-dev
+```
+
+Complete any required Vercel login or project setup and use the address printed by the CLI. Never commit real credentials.
+
+[Vercel local-development reference](https://vercel.com/docs/cli/dev)
+
+### Checks and build
+
+```sh
+npm run lint
+npm run build
+npm run preview
+```
+
+`preview` serves the frontend build, not the API functions. No automated test script is defined in the supplied manifest. These are available commands, not a claim that they have passed.
+
+## Repository map
+
+| Path | Responsibility |
+| --- | --- |
+| [`src/features/animeRoyale/`](src/features/animeRoyale/) | Form, results, request orchestration, and history |
+| [`src/lib/animeApi.js`](src/lib/animeApi.js) | Provider adapters and battle scoring |
+| [`src/lib/battle.js`](src/lib/battle.js) | Winner selection, commentary requests, and fallbacks |
+| [`src/lib/eggTiers.js`](src/lib/eggTiers.js) | Tier thresholds and formatting |
+| [`src/components/`](src/components/) | Shared visual components |
+| [`api/roast.js`](api/roast.js) | Server-side Groq integration |
+| [`api/leaderboard.js`](api/leaderboard.js) | Separate, incomplete Redis endpoint; not connected to the UI |
+
+## Current limitations
+
+- The leaderboard imports `@upstash/redis`, which is absent from the supplied package manifest. It may block backend bundling and is not a ready-to-use feature. Its writes trust client-supplied scores.
+- The commentary handler accepts client-supplied profile data without application-level authentication or rate limiting. Review provider-cost and abuse controls before public deployment.
+- Generated battle commentary can contradict the locally selected winner.
+- Profile availability, provider failures, and external rate limits can interrupt lookups.
+- Dependency reproducibility and styling compatibility need verification: the Tailwind/PostCSS configuration is paired with an unpinned Tailwind dependency.
+
+These are source-review findings, not runtime or production-audit results. See [maintenance notes](docs/maintenance.md).
+
+## Data and security
+
+The browser fetches public profile data and sends normalised profiles to the commentary endpoint. Selected fields are forwarded to Groq. Recent results, including usernames and commentary, are saved in browser local storage. Clearing history removes that browser's saved history; it does not establish deletion from external services or infrastructure logs.
+
+Read the [security policy](SECURITY.md) before reporting vulnerabilities or deploying publicly.
+
+## Contributing
+
+See [contributing](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
+
+## Licence
+
+[MIT](LICENSE). The existing licence and copyright notice are unchanged. This repository does not establish ownership of third-party service names or externally supplied media.

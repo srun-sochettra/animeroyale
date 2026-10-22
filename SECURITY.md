@@ -1,33 +1,40 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+AnimeRoyale is a personal software project. This policy does not promise continuous monitoring, a response deadline, a security audit, or support for a particular release line. The supplied manifest identifies version `0.1.0`; that alone does not establish a supported-version programme.
 
-We actively monitor and provide security patches for the following versions of AnimeRoyale:
+## Reporting a vulnerability
 
-| Version | Supported |
-| ------- | --------- |
-| 0.1.x   | Yes       |
-| < 0.1.0 | No        |
+Do not publish exploit details, credentials, personal data, or affected users' information in issues or pull requests.
 
----
+If GitHub private vulnerability reporting is enabled for this repository, use **Report a vulnerability** in its security area. This document does not enable that feature or confirm its availability.
 
-## Reporting a Vulnerability
+If private reporting is unavailable, open an issue asking only for a private security contact. Do not include the vulnerability itself. No dedicated security email address is established in this repository.
 
-We take the security of AnimeRoyale seriously. If you find a security vulnerability, please do **not** open a public issue. Instead, report it privately.
+Once a private channel is available, include:
 
-To report a vulnerability:
-1. Send an email to [maintainers@example.com](mailto:maintainers@example.com) with the subject line `SECURITY VULNERABILITY - AnimeRoyale`.
-2. Include a detailed description of the vulnerability, including:
-   * The type of issue (e.g., Cross-Site Scripting, Dependency vulnerability, API key exposure risk).
-   * Steps to reproduce the issue (including any payload code or mock responses).
-   * The potential impact of the vulnerability.
+- The affected file, endpoint, and commit or version, if known.
+- A description of the issue and its potential impact.
+- Minimal reproduction steps using accounts and data you control.
+- Redacted evidence and any suggested mitigation.
 
----
+Avoid destructive testing and unnecessary provider requests. Do not test against other people's deployments without permission. Report exposed credentials privately and rotate credentials you control.
 
-## Response Process
+[GitHub private-reporting guidance](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately)
 
-After we receive a security report:
-1. A maintainer will acknowledge receipt of your email within **48 hours**.
-2. We will investigate the issue and coordinate a resolution.
-3. Once a patch is developed and verified, we will publish an updated release.
-4. We will keep you updated on the progress and credit you for the discovery (unless you prefer to remain anonymous).
+## Deployment considerations
+
+Review these source-level limitations before exposing an instance publicly:
+
+- `api/roast.js` has no application-level authentication or rate limiting and accepts client-supplied profile fields before invoking Groq.
+- Profile fields enter model prompts. Treat submitted fields and generated output as untrusted; the current implementation does not establish prompt-injection resistance.
+- `api/leaderboard.js` accepts unauthenticated client-supplied scores and imports an undeclared Redis dependency. Its scores are not authoritative.
+- Handlers return caught error messages. Review whether infrastructure or provider details could be exposed.
+- Several dependencies use `latest`, and the supplied snapshot contains no lockfile.
+
+These observations are source-review findings, not a penetration test or a complete security assessment. Documentation changes do not remediate them.
+
+## Secrets and data
+
+Keep `GROQ_API_KEY` and Redis credentials in server-side environment configuration, never client code or reports. Do not expose them through frontend environment variables.
+
+Public profile data is fetched in the browser. Normalised profiles are sent to `/api/roast`; selected fields are forwarded to Groq. Recent results remain in browser local storage until cleared or removed by the browser. External-service retention and infrastructure logging are outside the guarantees made by this policy.
